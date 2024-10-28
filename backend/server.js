@@ -9,13 +9,16 @@ import exploreRoutes from "./routes/explore.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import cors from "cors";
 import connectMongoDB from "./db/connectMongoDB.js";
-
+import path from 'path';
 
 dotenv.config();
 const app = express();
 app.use(cors());
 
 const PORT=process.env.PORT || 5000
+const __dirname=path.resolve();
+
+console.log(__dirname)
 
 // Configure express-session middleware
 app.use(
@@ -34,16 +37,20 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/", (req, res) => {
-    res.send("<h1>Server is ready</h1>");
-});
+
 
 // Define routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/explore", exploreRoutes);
 
+app.use(express.static(path.join(__dirname, '/frontend/dist')));
+
+app.get("*",(req,res)=>{
+    res.sendFile(path.join(__dirname, "frontend","dist","index.html"));
+})
+
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
     connectMongoDB();
 });
